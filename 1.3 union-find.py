@@ -2,6 +2,9 @@
 """
 """
 
+import json
+import random
+
 
 def quickfind(pair):
     """Реализация простого алгоритма, решающего задачу связности. В основе
@@ -94,12 +97,72 @@ def weightedquickunion(pair):
     return result
 
 
+def weightedquickunion_wpch(pair):
+    """Модификация weightedquickunion с использованием сжатие пути делением
+    пополам.
+
+    Arguments:
+        pair {list} -- [лист пар вершин]
+
+    Returns:
+        [dict] -- [словарь вершин]
+    """
+    result = dict()
+    sz = dict()
+    for p, q in pair:
+        sz[p] = 1
+        sz[q] = 1
+        result[q] = q
+        result[p] = p
+    for p, q in pair:
+        while p != result[p]:
+            result[p] = result[result[p]]
+            p = result[p]
+        while q != result[q]:
+            result[q] = result[result[q]]
+            q = result[q]
+        if p == q:
+            continue
+        if sz[p] < sz[q]:
+            result[p] = q
+            sz[q] += sz[p]
+        else:
+            result[q] = p
+            sz[p] += sz[q]
+    return result
+
+
+def save_data(data):
+    out = {}
+    li = []
+    for key in data.keys():
+        li.append({'name': key})
+    out['nodes'] = li
+    li = []
+    for k, v in data.items():
+        li.append({'source': k, 'target': v})
+    out['links'] = li
+    with open(r'visualization/miserables.json', mode='w') as f:
+        f.write(json.dumps(out, indent=4))
+
+
 pair = ((3, 4), (4, 9), (8, 0), (2, 3), (5, 6), (2, 9),
         (5, 9), (7, 3), (4, 8), (5, 6), (0, 2), (6, 1))
 # print(quickfind(pair))
 # print(quickunion(pair))
 print(weightedquickunion(pair))
+print(weightedquickunion_wpch(pair))
 
 # pair = ((0, 2), (1, 4), (2, 5), (3, 6), (0, 4), (6, 0), (1, 3))
 # print(quickfind(pair))
 # print(quickunion(pair))
+
+# pair = ((0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6),
+#         (6, 7), (7, 8), (8, 9))
+# print(weightedquickunion(pair))
+# print(weightedquickunion_wpch(pair))
+
+pair = []
+for i in range(100):
+    pair.append((i, random.randint(0, 100)))
+save_data(weightedquickunion_wpch(pair))
