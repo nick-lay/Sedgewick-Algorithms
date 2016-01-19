@@ -4,6 +4,7 @@
 
 import json
 import random
+import itertools
 
 
 def quickfind(pair):
@@ -132,11 +133,13 @@ def weightedquickunion_wpch(pair):
     return result
 
 
-def save_data(data):
+def save_data(data, numingroup=None):
     out = {}
     li = []
-    for key in data.keys():
-        li.append({'name': key})
+    if numingroup is None:
+        numingroup = 1
+    for n, key in enumerate(data.keys()):
+        li.append({'name': key, 'group': n // numingroup})
     out['nodes'] = li
     li = []
     for k, v in data.items():
@@ -146,12 +149,35 @@ def save_data(data):
         f.write(json.dumps(out, indent=4))
 
 
+def generate_demo():
+    """визуализация случайных данных
+    """
+    NPOINT = 50
+    pair = []
+    for i in range(NPOINT):
+        pair.append((i, random.randint(0, NPOINT-1)))
+    data = []
+    data.append(quickfind(pair))
+    data.append(quickunion(pair))
+    data.append(weightedquickunion(pair))
+    data.append(weightedquickunion_wpch(pair))
+    print(data)
+    result = dict()
+    for n, data in enumerate(data):
+        for k, v in data.items():
+            result[n*NPOINT+k] = n*NPOINT+v
+        # print(n, data)
+    print(result)
+    save_data(result, NPOINT)
+    # save_data(weightedquickunion_wpch(pair))
+
+
 pair = ((3, 4), (4, 9), (8, 0), (2, 3), (5, 6), (2, 9),
         (5, 9), (7, 3), (4, 8), (5, 6), (0, 2), (6, 1))
 # print(quickfind(pair))
 # print(quickunion(pair))
-print(weightedquickunion(pair))
-print(weightedquickunion_wpch(pair))
+# print(weightedquickunion(pair))
+# print(weightedquickunion_wpch(pair))
 
 # pair = ((0, 2), (1, 4), (2, 5), (3, 6), (0, 4), (6, 0), (1, 3))
 # print(quickfind(pair))
@@ -162,7 +188,4 @@ print(weightedquickunion_wpch(pair))
 # print(weightedquickunion(pair))
 # print(weightedquickunion_wpch(pair))
 
-pair = []
-for i in range(100):
-    pair.append((i, random.randint(0, 100)))
-save_data(weightedquickunion_wpch(pair))
+generate_demo()
